@@ -90,10 +90,11 @@ comout_flag = False
 i = 0
 # for-eachで一行のリストごとに処理
 for line in lines:
+    month_searching = month_search(line)
     # 月の行かコメントアウト開始終了時以外はmonthを変えない
     if month_search(line) != 0:
-        month = month_search(line)
-    if month == 4:
+        month = month_searching
+    if month_searching == 4:
         month_start_flag = True
 
     if month_start_flag:
@@ -101,6 +102,7 @@ for line in lines:
         if month == -1:
             print("コメアウト終了")
             comout_flag = False
+            # TODO: 終了処理ができていないため、次の月になるまで処理が行われない
         # コメントアウト行開始時にフラグを立てる
         elif month == -2:
             print("コメアウト開始")
@@ -108,7 +110,7 @@ for line in lines:
         # コメントアウト行でない場合の処理
         elif not comout_flag:
             # 日付を検出
-            print("大丈夫な予定")
+            print(line)
             '''
             # 構造体を渡す
             csv_write = CSV_Struct()
