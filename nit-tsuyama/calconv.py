@@ -6,12 +6,12 @@ import zenhan
 
 """.csvに書き込む際の構造体."""
 class CSV_Struct:
-    def __init__(self, sub, start, end):
-        self.sub = sub
-        self.start = start
-        self.end = end
+    def __init__(self):
+        self.sub = ''
+        self.start = ''
+        self.end = ''
         # 終日はTRUEとしておく
-        self.ALL_DAY = "TRUE"
+        self.ALL_DAY = 'TRUE'
 
 """何月であるかを検出し、返す."""
 def month_search(line):
@@ -55,10 +55,19 @@ def span_search(line):
     else:
         return -1
 
-'''
-"""日付を検出し、返す."""
-def date_search(line):
-'''
+"""一日予定の日付を検出し、返す."""
+def one_date_search(line):
+    # 全角スペース
+    zen_space = '　'
+    # 全角0
+    zen_zero = '０'
+    # 全角スペースを0に置き換えることで無理やり対応
+    line = line.replace(zen_space, zen_zero)
+    index = line.find('日')
+    # ex. １ → ０１
+    #if line[index - 1] == zen_space:
+    #    line[index - 1] = zen_zero
+    return zenhan.z2h(line[index - 2:index])
 
 # 津山工業高等専門学校 行事予定 URL(2016/04/03現在)
 # まあURL変わるようだったら入力制にするかも
@@ -66,6 +75,8 @@ def date_search(line):
 URL = "http://www.tsuyama-ct.ac.jp/honkou/annai/gyouji.htm"
 # カレンダーで読み込み可能にする為の.csv用ヘッダ
 CSV_HEAD = 'Subject,Start Date,End Date,All Day Event\n'
+# 西暦を入力
+year = "2016"
 # Requests オブジェクト
 r = requests.get(URL)
 # ISO-8859-1のエンコーディングを変更(半ギレ
@@ -88,10 +99,10 @@ f = open('./schedule.csv', 'w')
 f.write(CSV_HEAD)
 f.close()
 
-# 改行文字を取り除く
+# 後ろの改行文字を取り除く
 i = 0
 for line in lines:
-    lines[i] = line.strip()
+    lines[i] = line.rstrip()
     i = i + 1
 
 # 予定表部分終了部分(テキストそのままのため、何か終了検出方法を考えるべき)
@@ -128,26 +139,37 @@ for line in lines:
                 print(line)
 
                 # 構造体を渡す
-                csv_write = CSV_Struct("馬鹿みたいな予定", 20160401, 20160402)
-                # 西暦を入力
-                year = "2016"
+                csv_write = CSV_Struct()
+
                 if month < 10:
                     # ex. month:4 → 04
-                    csv_write.start = year + "0" + str(month)
+                    csv_write.start = "0" + str(month) + '/'
                 elif month <=12:
-                    csv_write.start = year + str(month)
+                    csv_write.start = str(month) + '/'
+
                 # 期間予定かの検出
                 span = span_search(line)
-                print(span)
-                if span == 0:
-                    print("期間予定ナリ〜")
                 # 一日予定
-                elif span == -1:
-                    print("一日予定ナリ〜")
-                # 月をまたぐ期間制予定
+                if span == -1:
+                    csv_write.start = csv_write.start + one_date_search(line) + '/'
+                # 期間予定
+                elif span == 0:
+                    print("期間予定ナリ〜")
+                # 月をまたぐ期間予定
                 elif span == -2:
                     print("月をまたぐ期間予定ナリ〜")
 
+                csv_write.start = csv_write.start + year
+                print(csv_write.start)
+                '''
+                # .csvに書き込む
+                f = open('./schedule.csv', 'a')
+                f.write(csv_write.sub + "," +
+                        csv_write.start + "," +
+                        csv_write.end + "," +
+                        csv_write.ALL_DAY + "\n")
+                f.close()
+                '''
 
 # GitHubにアップする際のWebサイトソース削除
 f = open('./gyouji.html', 'w')
@@ -156,3 +178,4 @@ f.close()
 
 # Issue: Webサイトソースが改行(CR, CRLF, LF)を用いず<br>として形式を保っている場合に対応できていない.
 #        期間制予定かの検出に〜の２つ後にあるというスタイルに依存した判定を行っている.
+#        予定表部分終了部分がテキストそのまま.
