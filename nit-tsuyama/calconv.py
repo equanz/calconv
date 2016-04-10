@@ -28,28 +28,33 @@ def month_search(line):
                 return -1
             else:
                 return -2
+    # コメントアウト終了時
     elif '-->' in line:
         return -1
+    # 予定の行の時
     else:
         return 0
 
-"""期間制の予定であるかを検出し、真偽を返す."""
+"""期間予定であるかを検出し、真偽を返す."""
 def span_search(line):
-    index = line.find('～')
+    index = line.find('〜')
     # .findで検出されない場合-1が返される
     if index != -1:
         # 2〜5年といった学年の間隔を〜記号で表しているため、その対策
         # 〜の２つ後にあるというスタイルに依存
+        # つまり一日予定
         if line.startswith('年', index + 2):
             return -1
-        # 月が変わる特殊な場合の対策
+        # 月が変わる特殊な期間予定の場合の対策
         elif line.startswith('月', index +2):
             return -2
-        return 0
+        # 期間予定
+        else:
+            return 0
+    # 一日予定
     else:
         return -1
 
-#
 '''
 """日付を検出し、返す."""
 def date_search(line):
@@ -83,6 +88,14 @@ f = open('./schedule.csv', 'w')
 f.write(CSV_HEAD)
 f.close()
 
+# 改行文字を取り除く
+i = 0
+for line in lines:
+    lines[i] = line.strip()
+    i = i + 1
+
+# 予定表部分終了部分(テキストそのままのため、何か終了検出方法を考えるべき)
+month_end = '<hr class="s60">'
 # 4月の予定が読み込み開始されたかのフラグ
 month_start_flag = False
 # 予定がコメントアウト中の行にあるかのフラグ
@@ -90,43 +103,51 @@ comout_flag = False
 i = 0
 # for-eachで一行のリストごとに処理
 for line in lines:
-    month_searching = month_search(line)
-    # 月の行かコメントアウト開始終了時以外はmonthを変えない
-    if month_search(line) != 0:
-        month = month_searching
-    if month_searching == 4:
-        month_start_flag = True
+    # 改行のみの行を取り除く
+    if line != '':
+        month_searching = month_search(line)
+        # 月の行以外はmonthを変えない
+        if month_search(line) >= 1:
+            month = month_searching
+        if month_searching == 4:
+            month_start_flag = True
 
-    if month_start_flag:
-        # コメントアウト行終了時にフラグを下ろす
-        if month == -1:
-            print("コメアウト終了")
-            comout_flag = False
-            # TODO: 終了処理ができていないため、次の月になるまで処理が行われない
-        # コメントアウト行開始時にフラグを立てる
-        elif month == -2:
-            print("コメアウト開始")
-            comout_flag = True
-        # コメントアウト行でない場合の処理
-        elif not comout_flag:
-            # 日付を検出
-            print(line)
-            '''
-            # 構造体を渡す
-            csv_write = CSV_Struct()
-            # 西暦を入力
-            year = "2016"
-            if month < 10:
-                csv_write.start = year + "0" + str(month)
-            # 期間制予定かの検出
-            span = span_search(line)
-            if span = 0:
-                # ex. month:4 → 04
+        if month_start_flag:
+            # 予定表部分が終了した場合,breakする
+            if month_end in line:
+                break
+            # コメントアウト行終了時にフラグを下ろす
+            elif month_searching == -1:
+                comout_flag = False
+            # コメントアウト行開始時にフラグを立てる
+            elif month_searching == -2:
+                comout_flag = True
+            # コメントアウト行でないかつ月表示の行でない場合の処理
+            elif not comout_flag and month_searching == 0:
+                # 日付を検出
+                print(line)
 
-            # 一日予定
-            elif span = -1:
-            # 月をまたぐ期間制予定
-            elif span = -2:
+                # 構造体を渡す
+                csv_write = CSV_Struct("馬鹿みたいな予定", 20160401, 20160402)
+                # 西暦を入力
+                year = "2016"
+                if month < 10:
+                    # ex. month:4 → 04
+                    csv_write.start = year + "0" + str(month)
+                elif month <=12:
+                    csv_write.start = year + str(month)
+                # 期間予定かの検出
+                span = span_search(line)
+                print(span)
+                if span == 0:
+                    print("期間予定ナリ〜")
+                # 一日予定
+                elif span == -1:
+                    print("一日予定ナリ〜")
+                # 月をまたぐ期間制予定
+                elif span == -2:
+                    print("月をまたぐ期間予定ナリ〜")
+
 
 # GitHubにアップする際のWebサイトソース削除
 f = open('./gyouji.html', 'w')
@@ -135,4 +156,3 @@ f.close()
 
 # Issue: Webサイトソースが改行(CR, CRLF, LF)を用いず<br>として形式を保っている場合に対応できていない.
 #        期間制予定かの検出に〜の２つ後にあるというスタイルに依存した判定を行っている.
-'''
