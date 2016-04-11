@@ -15,7 +15,7 @@ class CSV_Struct:
         # 終日はTRUEとしておく
         self.ALL_DAY = 'TRUE'
 
-"""何月であるかを検出し、返す."""
+"""何月であるかを検出し,返す."""
 def month_search(line):
     # 月の表示のテンプレート
     month_temp = ['<h3>＜', '月＞</h3>']
@@ -37,7 +37,7 @@ def month_search(line):
     else:
         return 0
 
-"""期間予定であるかを検出し、真偽を返す."""
+"""期間予定であるかを検出し,真偽を返す."""
 def span_search(line):
     index = line.find('〜')
     # .findで検出されない場合-1が返される
@@ -57,7 +57,7 @@ def span_search(line):
     else:
         return -1
 
-"""予定開始の日付を検出し、返す."""
+"""予定開始の日付を検出し,返す."""
 def date_start_search(line):
     # 全角スペース
     zen_space = '　'
@@ -71,12 +71,14 @@ def date_start_search(line):
     #    line[index - 1] = zen_zero
     return zenhan.z2h(line[index - 2:index])
 
+"""予定終了の日付が月末でないかを検出し,返す."""
 def date_end_search(line, year, month, date):
     hoge = calendar.monthrange(year, month)
     # 月の最終日の場合Trueを返す
-    if date == hoge[1]
-    return "hoge"
-
+    if date == hoge[1]:
+        return True
+    else:
+        return False
 
 # 津山工業高等専門学校 行事予定 URL(2016/04/03現在)
 # まあURL変わるようだったら入力制にするかも
@@ -153,16 +155,40 @@ for line in lines:
                 if month < 10:
                     # ex. month:4 → 04
                     csv_write.start = "0" + str(month) + '/'
-                elif month <=12:
+                elif month <= 12:
                     csv_write.start = str(month) + '/'
+                # 終了日が次の年である場合の対策
+                end_next_year = False
 
                 # 期間予定かの検出
                 span = span_search(line)
                 csv_write.start = csv_write.start + date_start_search(line) + '/'
                 # 一日予定
                 if span == -1:
-                    hoge = date_end_search(line, int(year), month, int(date_start_search(line)))
-                    print("一日予定である！")
+                    # 月末の場合は次の月の始めを設定
+                    if date_end_search(line, int(year), month, int(date_start_search(line))):
+                        if month + 1 < 10:
+                            # ex. month + 1:4 → 04
+                            csv_write.end = "0" + str(month + 1) + '/'
+                        elif month + 1 < 12:
+                            csv_write.end = str(month + 1) + '/'
+                        elif month + 1 == 12:
+                            # 12月の次は1月を設定
+                            jan = "01"
+                            csv_write.end = jan + '/'
+                        # 月末の次は1日を設定
+                        first = "01"
+                        csv_write.end = csv_write.end + first + '/'
+                        if month + 1 < 4:
+                            end_next_year = True
+                    else:
+                        if month < 10:
+                            # ex. month + 1:4 → 04
+                            csv_write.end = "0" + str(month) + '/'
+                        elif month < 12:
+                            csv_write.end = str(month) + '/'
+                        # 日付は1加えるだけ(無理) 03 + 1 → 無理
+                        csv_write.end = csv_write.end + str(int(date_start_search(line)) + 1) + '/'
                 # 期間予定
                 elif span == 0:
                     print("期間予定である！")
@@ -170,7 +196,10 @@ for line in lines:
                 elif span == -2:
                     print("月をまたぐ期間予定ナリ〜")
 
-                csv_write.start = csv_write.start + year
+                # 1~3月は次の年を設定
+                if month < 4:
+                    csv_write.start = csv_write.start + str(int(year + 1))
+                csv_write.end = csv_write.end + year
                 print("start: " + csv_write.start)
                 # .csvに書き込む
                 f = open('./schedule.csv', 'a')
