@@ -1,8 +1,10 @@
 # !/usr/bin/env python
 # coding: utf-8
 
+from datetime import datetime
 import requests
 import zenhan
+import calendar
 
 """.csvに書き込む際の構造体."""
 class CSV_Struct:
@@ -55,8 +57,8 @@ def span_search(line):
     else:
         return -1
 
-"""一日予定の日付を検出し、返す."""
-def one_date_search(line):
+"""予定開始の日付を検出し、返す."""
+def date_start_search(line):
     # 全角スペース
     zen_space = '　'
     # 全角0
@@ -68,6 +70,13 @@ def one_date_search(line):
     #if line[index - 1] == zen_space:
     #    line[index - 1] = zen_zero
     return zenhan.z2h(line[index - 2:index])
+
+def date_end_search(line, year, month, date):
+    hoge = calendar.monthrange(year, month)
+    # 月の最終日の場合Trueを返す
+    if date == hoge[1]
+    return "hoge"
+
 
 # 津山工業高等専門学校 行事予定 URL(2016/04/03現在)
 # まあURL変わるようだったら入力制にするかも
@@ -149,19 +158,20 @@ for line in lines:
 
                 # 期間予定かの検出
                 span = span_search(line)
+                csv_write.start = csv_write.start + date_start_search(line) + '/'
                 # 一日予定
                 if span == -1:
-                    csv_write.start = csv_write.start + one_date_search(line) + '/'
+                    hoge = date_end_search(line, int(year), month, int(date_start_search(line)))
+                    print("一日予定である！")
                 # 期間予定
                 elif span == 0:
-                    print("期間予定ナリ〜")
+                    print("期間予定である！")
                 # 月をまたぐ期間予定
                 elif span == -2:
                     print("月をまたぐ期間予定ナリ〜")
 
                 csv_write.start = csv_write.start + year
-                print(csv_write.start)
-                '''
+                print("start: " + csv_write.start)
                 # .csvに書き込む
                 f = open('./schedule.csv', 'a')
                 f.write(csv_write.sub + "," +
@@ -169,7 +179,6 @@ for line in lines:
                         csv_write.end + "," +
                         csv_write.ALL_DAY + "\n")
                 f.close()
-                '''
 
 # GitHubにアップする際のWebサイトソース削除
 f = open('./gyouji.html', 'w')
