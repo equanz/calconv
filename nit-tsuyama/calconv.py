@@ -294,9 +294,9 @@ for line in lines:
                             jan = '01'
                             csv_write.end = jan + '/'
                         else:
-                            csv_write.end = digit_conv(month + 1) + '/'
+                            csv_write.end = digit_conv(int(mde[0]) + 1) + '/'
                     else:
-                        csv_write.end = digit_conv(month) + '/'
+                        csv_write.end = digit_conv(int(mde[0])) + '/'
 
                     csv_write.end = csv_write.end + date_end[1] + '/'
 
