@@ -150,7 +150,15 @@ def sub_search(line):
     index = line.rfind(zen_space)
     if line.find(br):
         line = line.replace(br, '')
-    return line[index + 1:]
+
+    # 学校か寮かのタグ付け
+    dormitory = '寮'
+    school_tag = '【学校】'
+    dormitory_tag = '【寮】'
+    if dormitory in line:
+        return dormitory_tag + line[index + 1:]
+    else:
+        return school_tag + line[index + 1:]
 
 print("4月~3月までの一年間の行事予定を出力します")
 # 津山工業高等専門学校 行事予定 URL(2016/04/03現在)
