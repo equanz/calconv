@@ -92,13 +92,34 @@ def date_end_search(line):
     # 全角0
     zen_zero = '０'
     nichi = '日'
-    # 全角スペースを0に置き換えることで無理やり対応
+    # 全角スペースと全角チルダを0に置き換えることで無理やり対応
     line = line.replace(zen_space, zen_zero)
     line = line.replace(zen_tilde, zen_zero)
     index = line.find(nichi)
     # 二度目のnichiの位置を検出
     index = line.find(nichi, index + 1)
     return zenhan.z2h(line[index - 2:index])
+
+"""月表記のある予定終了の日付を検出し,intとintで返す."""
+def month_date_end_search(line):
+    zen_tilde = '〜'
+    # 全角スペース
+    zen_space = '　'
+    # 全角0
+    zen_zero = '０'
+    nichi = '日'
+    tsuki = '月'
+    # 全角スペースを0に置き換えることで無理やり対応
+    line = line.replace(zen_space, zen_zero)
+    line = line.replace(zen_tilde, zen_zero)
+    index_month = line.find(tsuki)
+    # 日が一桁の場合の対策
+    line = line.replace(tsuki, zen_zero, 1)
+    # 二度目のnichiの位置を検出
+    index_date = line.find(nichi, index_month + 1)
+    print(zenhan.z2h(line[index_month - 2:index_month]) + "," + zenhan.z2h(line[index_date - 2:index_date]))
+    # 月, 日を返す
+    return int(zenhan.z2h(line[index_month - 2:index_month])), int(zenhan.z2h(line[index_date - 2:index_date]))
 
 """intで取得して,予定終了の日付を計算し,boolとstrで返す."""
 def date_end_next(year, month, date):
@@ -142,6 +163,8 @@ CSV_HEAD = 'Subject,Start Date,End Date,All Day Event\n'
 year = 2016
 # Requests オブジェクト
 r = requests.get(URL)
+# 曜日(除去用)
+days = ['（日）', '（月）', '（火）', '（水）', '（木）', '（金）', '（土）']
 # ISO-8859-1のエンコーディングを変更(半ギレ
 if r.encoding == 'ISO-8859-1':
     r.encoding = 'Shift_JIS'
@@ -177,6 +200,10 @@ comout_flag = False
 i = 0
 # for-eachで一行のリストごとに処理
 for line in lines:
+    # 曜日表記を除去する
+    for day in days:
+        line = line.replace(day, '')
+
     # 改行のみの行を取り除く
     if line != '':
         month_searching = month_search(line)
@@ -199,7 +226,7 @@ for line in lines:
             # コメントアウト行でないかつ月表示の行でない場合の処理
             elif not comout_flag and month_searching == 0:
                 # 日付を検出
-                #print(line)
+                print(line)
 
                 # 構造体を渡す
                 csv_write = CSV_Struct()
@@ -239,6 +266,18 @@ for line in lines:
                     csv_write.end = csv_write.end + date_end[1] + '/'
                 # 月をまたぐ期間予定
                 elif span == -2:
+                    mde = month_date_end_search(line)
+                    date_end = date_end_next(year, int(mde[0]), int(mde[1]))
+                    if date_end[0]:
+                        if month == 12:
+                            jan = '01'
+                            csv_write.end = jan + '/'
+                        else:
+                            csv_write.end = digit_conv(month + 1) + '/'
+                    else:
+                        csv_write.end = digit_conv(month) + '/'
+
+                    csv_write.end = csv_write.end + date_end[1] + '/'
                     print("月をまたぐ期間予定ナリ〜")
 
                 # 1日
