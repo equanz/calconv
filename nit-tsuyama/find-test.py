@@ -1,6 +1,6 @@
 # !/usr/bin/env python
 # coding: utf-8
-line = '　２１日（火）～３１日（金）　学年末休業<br>'
+line = '　１２日（月）～８月７日（金）　後期授業料免除申請受付開始'
 # line = '　１０日（土）　２～５年第２回単位認定試験<br>'
 # line = '　２７日（火）～１月４日（水）　一斉休業<br>'
 index = line.find('～')
@@ -12,7 +12,7 @@ if index != -1:
     if line.startswith('年', index + 2):
         print("-1")
     # 月が変わる特殊な期間予定の場合の対策
-    elif line.startswith('月', index +2):
+    elif line.startswith('月', index + 2) or line.startswith('月', index + 3):
         print("-2")
     # 期間予定
     else:

@@ -15,7 +15,7 @@ class CSV_Struct:
         # 終日はTRUEとしておく
         self.ALL_DAY = 'TRUE'
 
-"""何月であるかを検出し,返す."""
+"""月の行かコメントアウト行かを検出し,intで返す."""
 def month_search(line):
     # 月の表示のテンプレート
     month_temp = ['<h3>＜', '月＞</h3>']
@@ -37,9 +37,11 @@ def month_search(line):
     else:
         return 0
 
-"""期間予定であるかを検出し,真偽を返す."""
+"""期間予定であるかを検出し,boolで返す."""
 def span_search(line):
-    index = line.find('〜')
+    zen_tilde = '〜'
+    # '〜'が最初に検出された列
+    index = line.find(zen_tilde)
     # .findで検出されない場合-1が返される
     if index != -1:
         # 2〜5年といった学年の間隔を〜記号で表しているため、その対策
@@ -48,7 +50,7 @@ def span_search(line):
         if line.startswith('年', index + 2):
             return -1
         # 月が変わる特殊な期間予定の場合の対策
-        elif line.startswith('月', index +2):
+        elif line.startswith('月', index + 2) or line.startswith('月', index + 3):
             return -2
         # 期間予定
         else:
@@ -73,16 +75,33 @@ def date_start_search(line):
     zen_space = '　'
     # 全角0
     zen_zero = '０'
+    nichi = '日'
     # 全角スペースを0に置き換えることで無理やり対応
     line = line.replace(zen_space, zen_zero)
-    index = line.find('日')
+    index = line.find(nichi)
     # ex. １ → ０１
     #if line[index - 1] == zen_space:
     #    line[index - 1] = zen_zero
     return zenhan.z2h(line[index - 2:index])
 
+"""月表記のない予定終了の日付を検出し,strで返す."""
+def date_end_search(line):
+    zen_tilde = '〜'
+    # 全角スペース
+    zen_space = '　'
+    # 全角0
+    zen_zero = '０'
+    nichi = '日'
+    # 全角スペースを0に置き換えることで無理やり対応
+    line = line.replace(zen_space, zen_zero)
+    line = line.replace(zen_tilde, zen_zero)
+    index = line.find(nichi)
+    # 二度目のnichiの位置を検出
+    index = line.find(nichi, index + 1)
+    return zenhan.z2h(line[index - 2:index])
+
 """intで取得して,予定終了の日付を計算し,boolとstrで返す."""
-def date_end_search(line, year, month, date):
+def date_end_next(year, month, date):
     april = 4
     # 10日
     tenth = 10
@@ -100,6 +119,19 @@ def date_end_search(line, year, month, date):
         next_date = date + 1
         return False, digit_conv(next_date)
 
+"""予定内容を検出し,strで返す."""
+def sub_search(line):
+    # 全角スペース
+    zen_space = '　'
+    # 改行マークアップ
+    br = '<br>'
+    # 右端から検索
+    index = line.rfind(zen_space)
+    if line.find(br):
+        line = line.replace(br, '')
+    return line[index + 1:]
+
+print("4月~3月までの一年間の行事予定を出力します")
 # 津山工業高等専門学校 行事予定 URL(2016/04/03現在)
 # まあURL変わるようだったら入力制にするかも
 # (2016/04/03現在)サイトはShift-JIS(半ギレ
@@ -167,7 +199,7 @@ for line in lines:
             # コメントアウト行でないかつ月表示の行でない場合の処理
             elif not comout_flag and month_searching == 0:
                 # 日付を検出
-                print(line)
+                #print(line)
 
                 # 構造体を渡す
                 csv_write = CSV_Struct()
@@ -181,7 +213,7 @@ for line in lines:
                 # 一日予定
                 if span == -1:
                     # 月末の場合は次の月の始めを設定
-                    date_end = date_end_search(line, year, month, int(date_start_search(line)))
+                    date_end = date_end_next(year, month, int(date_start_search(line)))
                     if date_end[0]:
                         if month == 12:
                             jan = '01'
@@ -192,10 +224,19 @@ for line in lines:
                         csv_write.end = digit_conv(month) + '/'
 
                     csv_write.end = csv_write.end + date_end[1] + '/'
-
                 # 期間予定
                 elif span == 0:
-                    print("期間予定である！")
+                    date_end = date_end_next(year, month, int(date_end_search(line)))
+                    if date_end[0]:
+                        if month == 12:
+                            jan = '01'
+                            csv_write.end = jan + '/'
+                        else:
+                            csv_write.end = digit_conv(month + 1) + '/'
+                    else:
+                        csv_write.end = digit_conv(month) + '/'
+
+                    csv_write.end = csv_write.end + date_end[1] + '/'
                 # 月をまたぐ期間予定
                 elif span == -2:
                     print("月をまたぐ期間予定ナリ〜")
@@ -215,6 +256,8 @@ for line in lines:
                     csv_write.end = csv_write.end + str(year)
                 print("start: " + csv_write.start)
                 print("end: " + csv_write.end)
+
+                csv_write.sub = sub_search(line)
                 # .csvに書き込む
                 f = open('./schedule.csv', 'a')
                 f.write(csv_write.sub + "," +
