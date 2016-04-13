@@ -2,6 +2,7 @@
 # coding: utf-8
 
 from datetime import datetime
+import sys
 import requests
 import zenhan
 import calendar
@@ -117,7 +118,6 @@ def month_date_end_search(line):
     line = line.replace(tsuki, zen_zero, 1)
     # 二度目のnichiの位置を検出
     index_date = line.find(nichi, index_month + 1)
-    print(zenhan.z2h(line[index_month - 2:index_month]) + "," + zenhan.z2h(line[index_date - 2:index_date]))
     # 月, 日を返す
     return int(zenhan.z2h(line[index_month - 2:index_month])), int(zenhan.z2h(line[index_date - 2:index_date]))
 
@@ -160,15 +160,28 @@ def sub_search(line):
     else:
         return school_tag + line[index + 1:]
 
-print("4月~3月までの一年間の行事予定を出力します")
 # 津山工業高等専門学校 行事予定 URL(2016/04/03現在)
 # まあURL変わるようだったら入力制にするかも
 # (2016/04/03現在)サイトはShift-JIS(半ギレ
 URL = "http://www.tsuyama-ct.ac.jp/honkou/annai/gyouji.htm"
 # カレンダーで読み込み可能にする為の.csv用ヘッダ
 CSV_HEAD = 'Subject,Start Date,End Date,All Day Event\n'
+
+print("4月~3月までの一年間の行事予定を出力します")
+print("URL:" + URL)
+print("予定表に対応する西暦を年度で入力してください")
+
 # 西暦を入力
-year = 2016
+year = int(input())
+if year <= 2000 or year >= 2027:
+    print("注意:このソフトの制作年から大きく異なるようです。\n本当にこの西暦でよろしいですか\ny/n")
+    s = input()
+    if s in ("y", "yes", "1", "true", "t"):
+        pass
+    elif s in ("n", "no", "0", "false", "f"):
+        sys.exit()
+    else:
+        raise ValueError("A yes or no response is required")
 # Requests オブジェクト
 r = requests.get(URL)
 # 曜日(除去用)
@@ -286,7 +299,6 @@ for line in lines:
                         csv_write.end = digit_conv(month) + '/'
 
                     csv_write.end = csv_write.end + date_end[1] + '/'
-                    print("月をまたぐ期間予定ナリ〜")
 
                 # 1日
                 first = '01'
