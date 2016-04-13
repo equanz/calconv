@@ -20,18 +20,18 @@ Linux, Python3での動作確認、開発をしています。
   - [津山工業高等専門学校 行事予定](http://www.tsuyama-ct.ac.jp/honkou/annai/gyouji.htm)
 
 ## Usage
-1. 以下コマンドを入力します。
+1.　以下コマンドを入力します。
 ```
 $ python3 calconv.py
 (変換する行事予定の西暦を年度表記で入力)
 ```
-2. カレントディレクトリにschedule.csvが生成されます。  
-3. 各カレンダーの形式への変換は、schedule.csvの変換により実現してください。
+2.　カレントディレクトリにschedule.csvが生成されます。  
+3.　各カレンダーの形式への変換は、schedule.csvの変換により実現してください。
 
 ## Author
 * [rikyuusima](https://github.com/rikyuusima)
   - nit-tsuyama/
 
 ## License
-ソースコードは[MIT License](https://github.com/rikyuusima/calconv/blob/master/LICENSE.txt)で提供します。  
+ソースコードは[MIT License](./LICENSE.txt)で提供します。  
 ダウンロードしたWebサイトはサイトの表記に従ってください(現状のソースではダウンロードしたサイトのソースは処理後、削除されます)。
