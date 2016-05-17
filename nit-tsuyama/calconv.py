@@ -181,7 +181,7 @@ if year <= 2000 or year >= 2027:
     elif s in ("n", "no", "0", "false", "f"):
         sys.exit()
     else:
-        raise ValueError("A yes or no response is required")
+        raise ValueError("\tA yes or no response is required\n\t\t" +s+ " is not defined")
 # Requests オブジェクト
 r = requests.get(URL)
 # 曜日(除去用)
