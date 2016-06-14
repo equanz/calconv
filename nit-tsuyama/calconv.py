@@ -1,14 +1,14 @@
-# !/usr/bin/env python
+#!/usr/bin/env python
 # coding: utf-8
 
-from datetime import datetime
+#import datetime
 import sys
 import requests
 import zenhan
 import calendar
 
-""".csvに書き込む際の構造体."""
 class CSV_Struct:
+    """.csvに書き込む際の構造体."""
     def __init__(self):
         self.sub = ''
         self.start = ''
@@ -16,8 +16,8 @@ class CSV_Struct:
         # 終日はTRUEとしておく
         self.ALL_DAY = 'TRUE'
 
-"""月の行かコメントアウト行かを検出し,intで返す."""
 def month_search(line):
+    """月の行かコメントアウト行かを検出し,intで返す."""
     # 月の表示のテンプレート
     month_temp = ['<h3>＜', '月＞</h3>']
     # 検索方法が汚すぎる
@@ -26,11 +26,11 @@ def month_search(line):
         return month
     # コメントアウトされた予定を除外
     elif '<!--' in line:
-            # コメントアウトが一行で終わった場合の対策
-            if '-->' in line:
-                return -1
-            else:
-                return -2
+        # コメントアウトが一行で終わった場合の対策
+        if '-->' in line:
+            return -1
+        else:
+            return -2
     # コメントアウト終了時
     elif '-->' in line:
         return -1
@@ -38,8 +38,8 @@ def month_search(line):
     else:
         return 0
 
-"""期間予定であるかを検出し,boolで返す."""
 def span_search(line):
+    """期間予定であるかを検出し,boolで返す."""
     zen_tilde = '〜'
     # '〜'が最初に検出された列
     index = line.find(zen_tilde)
@@ -60,8 +60,8 @@ def span_search(line):
     else:
         return -1
 
-"""intを取得し,二桁のstrで返す."""
 def digit_conv(var):
+    """intを取得し,二桁のstrで返す."""
     zero = '0'
     # 一桁の時,'0'を先頭につける
     if var < 10:
@@ -70,8 +70,8 @@ def digit_conv(var):
     else:
         return str(var)
 
-"""予定開始の日付を検出し,strで返す."""
 def date_start_search(line):
+    """予定開始の日付を検出し,strで返す."""
     # 全角スペース
     zen_space = '　'
     # 全角0
@@ -85,8 +85,8 @@ def date_start_search(line):
     #    line[index - 1] = zen_zero
     return zenhan.z2h(line[index - 2:index])
 
-"""月表記のない予定終了の日付を検出し,strで返す."""
 def date_end_search(line):
+    """月表記のない予定終了の日付を検出し,strで返す."""
     zen_tilde = '〜'
     # 全角スペース
     zen_space = '　'
@@ -101,8 +101,8 @@ def date_end_search(line):
     index = line.find(nichi, index + 1)
     return zenhan.z2h(line[index - 2:index])
 
-"""月表記のある予定終了の日付を検出し,intとintで返す."""
 def month_date_end_search(line):
+    """月表記のある予定終了の日付を検出し,intとintで返す."""
     zen_tilde = '〜'
     # 全角スペース
     zen_space = '　'
@@ -121,8 +121,8 @@ def month_date_end_search(line):
     # 月, 日を返す
     return int(zenhan.z2h(line[index_month - 2:index_month])), int(zenhan.z2h(line[index_date - 2:index_date]))
 
-"""intで取得して,予定終了の日付を計算し,boolとstrで返す."""
 def date_end_next(year, month, date):
+    """intで取得して,予定終了の日付を計算し,boolとstrで返す."""
     april = 4
     # 10日
     tenth = 10
@@ -140,8 +140,8 @@ def date_end_next(year, month, date):
         next_date = date + 1
         return False, digit_conv(next_date)
 
-"""予定内容を検出し,strで返す."""
 def sub_search(line):
+    """予定内容を検出し,strで返す."""
     # 全角スペース
     zen_space = '　'
     # 改行マークアップ
