@@ -3,9 +3,9 @@
 
 #import datetime
 import sys
+import calendar
 import requests
 import zenhan
-import calendar
 
 class CSV_Struct:
     """.csvに書き込む際の構造体."""
