@@ -160,6 +160,7 @@ def sub_search(line):
     else:
         return school_tag + line[index + 1:]
 
+
 # 津山工業高等専門学校 行事予定 URL(2016/04/03現在)
 # まあURL変わるようだったら入力制にするかも
 # (2016/04/03現在)サイトはShift-JIS(半ギレ
@@ -171,8 +172,16 @@ print("4月~3月までの一年間の行事予定を出力します")
 print("URL:" + URL)
 print("予定表に対応する西暦を年度で入力してください")
 
-# 西暦を入力
-year = int(input())
+# コマンドライン引数の取得準備(コマンドライン引数があればそれを西暦として実行)
+argc = len(sys.argv)
+
+# 西暦の入力
+if argc == 1:
+    year = int(input())
+else:
+    print(sys.argv[1])
+    year = int(sys.argv[1])
+
 if year <= 2000 or year >= 2027:
     print("注意:このソフトの制作年から大きく異なるようです。\n本当にこの西暦でよろしいですか\ny/n")
     s = input()
