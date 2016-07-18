@@ -2,5 +2,7 @@ language:   python
 python:
     -   "3.4"
 install:
-    -   pip install requests==2.2.1
-    -   pip install zenhan==0.5.2
+    -   pip3 install -r ./nit-tsuyama/requirements.txt
+script:
+    -   cd ./nit-tsuyama/
+    -   python3 calconv.py
