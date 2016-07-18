@@ -1,5 +1,7 @@
 # Calendar Converter
 
+`Travis CI:`  [![Build Status](https://travis-ci.org/rikyuusima/calconv.svg?branch=master)](https://travis-ci.org/rikyuusima/calconv)
+
 ## Summary
 webサイト作成の見づらいカレンダーを.csv等のGoogleカレンダーなどで読み込める形式に変換します。  
 各webサイトのhtml形式にとても依存するため，他のサイトへの転用は難しいと思います。
