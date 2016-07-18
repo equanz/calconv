@@ -2,9 +2,9 @@
 
 ## Summary
 webサイト作成の見づらいカレンダーを.csv等のGoogleカレンダーなどで読み込める形式に変換します。  
-各webサイトのhtml形式にとても依存するため、他のサイトへの転用は難しいと思います。
+各webサイトのhtml形式にとても依存するため，他のサイトへの転用は難しいと思います。
 
-Linux, Python3での動作確認、開発をしています。
+Linux, Python3での動作確認，開発をしています。
 
   * nit-tsuyama/
     - [津山工業高等専門学校 行事予定](http://www.tsuyama-ct.ac.jp/honkou/annai/gyouji.htm)の変換
@@ -29,7 +29,7 @@ $ python3 calconv.py
 (変換する行事予定の西暦を年度表記で入力)
 ```
 2.　カレントディレクトリにschedule.csvが生成されます。  
-3.　各カレンダーの形式への変換は、schedule.csvの変換(Google Calendar等)で対応してください。
+3.　各カレンダーの形式への変換は，schedule.csvの変換(Google Calendar等)で対応してください。
 
 ## Author
 * [rikyuusima](https://github.com/rikyuusima)
@@ -37,4 +37,4 @@ $ python3 calconv.py
 
 ## License
 ソースコードは[MIT License](./LICENSE.txt)で提供します。  
-ダウンロードしたWebサイトはサイトの表記に従ってください(現状のソースではダウンロードしたサイトのソースは処理後、削除されます)。
+ダウンロードしたWebサイトはサイトの表記に従ってください(現在はダウンロードしたサイトのソースは処理後，削除されます)。
