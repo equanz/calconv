@@ -160,6 +160,15 @@ def sub_search(line):
     else:
         return school_tag + line[index + 1:]
 
+def yesno():
+    """yes/no入力の判定を行う."""
+    s = input()
+    if s in ("y", "yes", "1", "true", "t"):
+        return True
+    elif s in ("n", "no", "0", "false", "f"):
+        return False
+    else:
+        raise ValueError("\tA y or n response is required\n\t\t" + s + " is not defined")
 
 # 津山工業高等専門学校 行事予定 URL(2016/04/03現在)
 # まあURL変わるようだったら入力制にするかも
@@ -172,25 +181,38 @@ print("4月~3月までの一年間の行事予定を出力します")
 print("URL:" + URL)
 print("予定表に対応する西暦を年度で入力してください")
 
-# コマンドライン引数の取得準備(コマンドライン引数があればそれを西暦として実行)
+# コマンドライン引数の個数を取得
 argc = len(sys.argv)
+
+# ヘルプオプション検出用
+HELP_OPTION = ['-h', '--help']
+# 西暦入力オプション検出用
+YEAR_OPTION = ['-y', '--year']
+# 予定切り分けオプション(ex.oo開始, oo終了)検出用
+LIMIT_OPTION = ['-l', '--limit']
 
 # 西暦の入力
 if argc == 1:
-    year = int(input())
+    year = input()
+    if year.isdigit():
+        year = int(year)
+    else:
+        raise ValueError("\tA Number response is required\n\t\t" + year + " is not defined")
 else:
-    print(sys.argv[1])
-    year = int(sys.argv[1])
+    year = sys.argv[1]
+    if year.isdigit():
+        year = int(year)
+        print(year)
+    else:
+        raise ValueError("\tA Number response is required\n\t\t" + year + " is not defined")
 
 if year <= 2000 or year >= 2027:
-    print("注意:このソフトの制作年から大きく異なるようです。\n本当にこの西暦でよろしいですか\ny/n")
-    s = input()
-    if s in ("y", "yes", "1", "true", "t"):
+    print("注意:このソフトの制作年から大きく異なるようです\n本当にこの西暦でよろしいですか\ny/n")
+    if yesno():
         pass
-    elif s in ("n", "no", "0", "false", "f"):
-        sys.exit()
     else:
-        raise ValueError("\tA yes or no response is required\n\t\t" +s+ " is not defined")
+        sys.exit()
+
 # Requests オブジェクト
 r = requests.get(URL)
 # 曜日(除去用)
@@ -255,9 +277,6 @@ for line in lines:
                 comout_flag = True
             # コメントアウト行でないかつ月表示の行でない場合の処理
             elif not comout_flag and month_searching == 0:
-                # 日付を検出
-                print(line)
-
                 # 構造体を渡す
                 csv_write = CSV_Struct()
 
@@ -322,10 +341,13 @@ for line in lines:
                     csv_write.end = csv_write.end + str(year + 1)
                 else:
                     csv_write.end = csv_write.end + str(year)
+                csv_write.sub = sub_search(line)
+
+                # 各種表示
                 print("start: " + csv_write.start)
                 print("end: " + csv_write.end)
+                print("sub: " + csv_write.sub)
 
-                csv_write.sub = sub_search(line)
                 # .csvに書き込む
                 f = open('./schedule.csv', 'a')
                 f.write(csv_write.sub + "," +
@@ -334,10 +356,12 @@ for line in lines:
                         csv_write.ALL_DAY + "\n")
                 f.close()
 
-# GitHubにアップする際のWebサイトソース削除
+# ダウンロードしたWebページの削除
 f = open('./gyouji.html', 'w')
 f.write('')
 f.close()
+
+print("\nSuccessful!")
 
 # Issue: Webサイトソースが改行(CR, CRLF, LF)を用いず<br>として形式を保っている場合に対応できていない.
 #        期間制予定かの検出に〜の２つ後にあるというスタイルに依存した判定を行っている.
