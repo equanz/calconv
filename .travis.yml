@@ -6,6 +6,5 @@ install:
 script:
     -   cd ./nit-tsuyama-old/
     -   python3 calconv.py 2016
-    -	cd ../nit-tsuyama/
-    -	python3 calconv.py 2016
-
+    -   cd ../nit-tsuyama/
+    -   python3 calconv.py 2016
