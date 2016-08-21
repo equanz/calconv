@@ -4,5 +4,8 @@ python:
 install:
     -   pip3 install -r ./nit-tsuyama/requirements.txt
 script:
-    -   cd ./nit-tsuyama/
+    -   cd ./nit-tsuyama-old/
     -   python3 calconv.py 2016
+    -	cd ../nit-tsuyama/
+    -	python3 calconv.py 2016
+
