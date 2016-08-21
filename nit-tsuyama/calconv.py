@@ -6,7 +6,6 @@ import calendar
 import requests
 import zenhan
 import argparse
-import re
 
 class CSV_Struct:
     """.csvに書き込む際の構造体."""
@@ -181,7 +180,7 @@ def remove_garbage(line):
     # 文字列左の空白列を取り除く
     line = line.lstrip()
     # 文字列左に半角スペースを追加(ヤケクソガバガバソース)
-    line = " " + line[0:]
+    line = zen_space + line[0:]
 
     # liタグを取り除く
     line = line.replace(li[0], '')
@@ -290,7 +289,7 @@ def main():
         # 改行のみの行を取り除く
         # remove_garbage()のガバガバ操作の影響でソースが気持ち悪い
         # 変なHTMLソースに対応するため
-        if line != " ":
+        if line != "　":
             print(line)
             month_searching = month_search(line)
             # 月の行以外はmonthを変えない
