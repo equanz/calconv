@@ -8,8 +8,10 @@ webサイト作成の見づらいカレンダーを.csv等のGoogleカレンダ�
 
 Linux, Python3での動作確認，開発をしています。
 
-  * nit-tsuyama/
-    - [津山工業高等専門学校 行事予定](http://www.tsuyama-ct.ac.jp/honkou/annai/gyouji.htm)の変換
+* nit-tsuyama/
+  - [行事予定｜津山工業高等専門学校](http://www.tsuyama-ct.ac.jp/gyoujiVer4/gyouji.html)の変換
+* nit-tsuyama-old/
+  - [津山工業高等専門学校 行事予定(旧ページ)](http://www.tsuyama-ct.ac.jp/honkou/annai/gyouji.htm)の変換
 
 ## Require
 * Python3
@@ -18,7 +20,8 @@ Linux, Python3での動作確認，開発をしています。
   - zenhan
   - calendar
 * 変換元Webページ
-  - [津山工業高等専門学校 行事予定](http://www.tsuyama-ct.ac.jp/honkou/annai/gyouji.htm)
+  - [行事予定｜津山工業高等専門学校](http://www.tsuyama-ct.ac.jp/gyoujiVer4/gyouji.html)
+  - [津山工業高等専門学校 行事予定(旧ページ)](http://www.tsuyama-ct.ac.jp/honkou/annai/gyouji.htm)
 
 ## Usage
 1.　以下コマンドを入力します。  
