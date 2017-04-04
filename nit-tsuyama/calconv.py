@@ -77,9 +77,15 @@ def date_start_search(line):
     # 全角0
     zen_zero = '０'
     nichi = '日'
+    dollar = '$'
     # 全角スペースを0に置き換えることで無理やり対応
     line = line.replace(zen_space, zen_zero)
     index = line.find(nichi)
+    # 日と曜日の位置関係から誤表記を訂正
+    index_first_dollar = line.find(dollar, index + 1)
+    if index + 1 != index_first_dollar:
+        index = index_first_dollar
+
     # ex. １ → ０１
     #if line[index - 1] == zen_space:
     #    line[index - 1] = zen_zero
@@ -93,13 +99,19 @@ def date_end_search(line):
     # 全角0
     zen_zero = '０'
     nichi = '日'
+    dollar = '$'
     # 全角スペースと全角チルダを0に置き換えることで無理やり対応
     line = line.replace(zen_space, zen_zero)
     line = line.replace(zen_tilde, zen_zero)
-    index = line.find(nichi)
+    index_first_date = line.find(nichi)
     # 二度目のnichiの位置を検出
-    index = line.find(nichi, index + 1)
-    return zenhan.z2h(line[index - 2:index])
+    index_second_date = line.find(nichi, index_first_date + 1)
+    # 日と曜日の位置関係から誤表記を訂正
+    index_second_dollar = line.find(dollar, index_first_date + 2)
+    if index_second_date + 1 != index_second_dollar:
+        index_second_date = index_second_dollar
+
+    return zenhan.z2h(line[index_second_date - 2:index_second_date])
 
 def month_date_end_search(line):
     """月表記のある予定終了の日付を検出し,intとintで返す."""
@@ -110,6 +122,7 @@ def month_date_end_search(line):
     zen_zero = '０'
     nichi = '日'
     tsuki = '月'
+    dollar = '$'
     # 全角スペースを0に置き換えることで無理やり対応
     line = line.replace(zen_space, zen_zero)
     line = line.replace(zen_tilde, zen_zero)
@@ -117,9 +130,13 @@ def month_date_end_search(line):
     # 日が一桁の場合の対策
     line = line.replace(tsuki, zen_zero, 1)
     # 二度目のnichiの位置を検出
-    index_date = line.find(nichi, index_month + 1)
+    index_second_date = line.find(nichi, index_month + 1)
+    # 日と曜日の位置関係から誤表記を訂正
+    index_second_dollar = line.find(dollar, index_month + 1)
+    if index_second_date + 1 != index_second_dollar:
+        index_second_date = index_second_dollar
     # 月, 日を返す
-    return int(zenhan.z2h(line[index_month - 2:index_month])), int(zenhan.z2h(line[index_date - 2:index_date]))
+    return int(zenhan.z2h(line[index_month - 2:index_month])), int(zenhan.z2h(line[index_second_date - 2:index_second_date]))
 
 def date_end_next(year, month, date):
     """intで取得して,予定終了の日付を計算し,boolとstrで返す."""
@@ -157,9 +174,7 @@ def sub_search(line):
         return school_tag + line[index + 1:]
 
 def remove_garbage(line):
-    """内容のうち,検出に必要ないものを取り除き,strで返す."""
-    # 曜日
-    days = ['（日）', '（月）', '（火）', '（水）', '（木）', '（金）', '（土）']
+    """内容のうち,検出に必要ないもの(曜日を除く)を取り除き,strで返す."""
     # 半角space
     han_space = ' '
     # 全角space
@@ -168,10 +183,6 @@ def remove_garbage(line):
     ul = ['<ul>', '</ul>']
     # liタグ
     li = ['<li>', '</li>']
-
-    # 曜日表記を除去する
-    for day in days:
-        line = line.replace(day, '')
 
     # ulタグを取り除く
     line = line.replace(ul[0], '')
@@ -185,6 +196,17 @@ def remove_garbage(line):
     # liタグを取り除く
     line = line.replace(li[0], '')
     line = line.replace(li[1], '')
+    return line
+
+def replace_week(line):
+    """内容のうち，曜日表記を$に置換"""
+    # 曜日
+    days = ['（日）', '（月）', '（火）', '（水）', '（木）', '（金）', '（土）']
+    # ダラーマーク
+    dollar = '$'
+    # 曜日表記を除去する
+    for day in days:
+        line = line.replace(day, dollar)
     return line
 
 def yesno():
@@ -274,7 +296,7 @@ def main():
         i = i + 1
 
     # 予定表部分終了部分(テキストそのままのため、何か終了検出方法を考えるべき)
-    month_end = '</div>'
+    month_end = '<div class="space">'
     # 4月の予定が読み込み開始されたかのフラグ
     month_start_flag = False
     # 予定がコメントアウト中の行にあるかのフラグ
@@ -285,6 +307,8 @@ def main():
 
         # 検出に必要のない文字列を取り除く
         line = remove_garbage(line)
+        # 曜日を$に置換
+        line = replace_week(line)
 
         # 改行のみの行を取り除く
         # remove_garbage()のガバガバ操作の影響でソースが気持ち悪い
