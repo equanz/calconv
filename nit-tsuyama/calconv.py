@@ -376,7 +376,7 @@ def main():
                             csv_write.end = digit_conv(month) + '/'
 
                         csv_write.end = csv_write.end + date_end[1] + '/'
-                    # 月をまたぐ期間予定
+                    # 月と書かれた期間予定
                     elif span == -2:
                         mde = month_date_end_search(line)
                         date_end = date_end_next(year, int(mde[0]), int(mde[1]))
@@ -400,7 +400,7 @@ def main():
                         csv_write.start = csv_write.start + str(year)
                     decem = 12
                     # endは12月予定かつ月を跨いでいるまたは,1~3月なら次の年を設定
-                    if month == decem and span == -2 or month == decem and date_end[0] or month < 4:
+                    if month == decem and span == -2 and date_end[0] or month == decem and date_end[0] or month < 4:
                         csv_write.end = csv_write.end + str(year + 1)
                     else:
                         csv_write.end = csv_write.end + str(year)
