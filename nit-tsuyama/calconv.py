@@ -6,6 +6,8 @@ import calendar
 import requests
 import zenhan
 import argparse
+from icalendar import Calendar, Event, vDate
+import datetime
 
 class CSV_Struct:
     """.csvに書き込む際の構造体."""
@@ -289,6 +291,11 @@ def main():
     f.write(CSV_HEAD)
     f.close()
 
+    # iCalヘッダ生成
+    cal = Calendar()
+    cal.add('proid', '津山高専行事予定' + str(year) + '年度版(calconv)')
+    cal.add('version', '2.0')
+
     # 後ろの改行文字を取り除く
     i = 0
     for line in lines:
@@ -304,7 +311,6 @@ def main():
     i = 0
     # for-eachで一行のリストごとに処理
     for line in lines:
-
         # 検出に必要のない文字列を取り除く
         line = remove_garbage(line)
         # 曜日を$に置換
@@ -405,6 +411,14 @@ def main():
                     print("end: " + csv_write.end)
                     print("sub: " + csv_write.sub)
 
+                    # iCal形式の作成
+                    event = Event()
+                    event.add('summary', csv_write.sub)
+                    dt = datetime.datetime.strptime(csv_write.start, "%m/%d/%Y")
+                    event.add('dtstart', vDate(dt))
+                    dt = datetime.datetime.strptime(csv_write.end, "%m/%d/%Y")
+                    event.add('dtend', vDate(dt))
+
                     # .csvに書き込む
                     f = open('./schedule.csv', 'a')
                     f.write(csv_write.sub + "," +
@@ -412,6 +426,15 @@ def main():
                             csv_write.end + "," +
                             csv_write.ALL_DAY + "\n")
                     f.close()
+
+                    # cal(iCal)に書き込む
+                    cal.add_component(event)
+
+    # .icsに書き込む
+    f = open('./schedule.ics', 'w')
+    print(cal.to_ical().decode('utf-8'))
+    f.write(cal.to_ical().decode('utf-8'))
+    f.close()
 
     # ダウンロードしたWebページの削除
     f = open('./gyouji.html', 'w')
