@@ -170,6 +170,12 @@ def sub_search(line):
     dormitory = '寮'
     school_tag = '【学校】'
     dormitory_tag = '【寮】'
+    # ダラーマーク
+    dollar = '$'
+
+    # ダラーマークの削除
+    line = line.replace(dollar, '')
+
     if dormitory in line:
         return dormitory_tag + line[index + 1:]
     else:
@@ -185,6 +191,8 @@ def remove_garbage(line):
     ul = ['<ul>', '</ul>']
     # liタグ
     li = ['<li>', '</li>']
+    # brタグ
+    br = '<br>'
 
     # ulタグを取り除く
     line = line.replace(ul[0], '')
@@ -198,6 +206,8 @@ def remove_garbage(line):
     # liタグを取り除く
     line = line.replace(li[0], '')
     line = line.replace(li[1], '')
+
+    line = line.replace(br, '')
     return line
 
 def replace_week(line):
