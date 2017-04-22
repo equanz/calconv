@@ -161,6 +161,12 @@ def date_end_next(year, month, date):
 
 def sub_search(line):
     """予定内容を検出し,strで返す."""
+    # ダラーマーク
+    dollar = '$'
+
+    # ダラーマークの削除
+    line = line.replace(dollar, '')
+
     # 全角スペース
     zen_space = '　'
     # 右端から検索
@@ -170,11 +176,6 @@ def sub_search(line):
     dormitory = '寮'
     school_tag = '【学校】'
     dormitory_tag = '【寮】'
-    # ダラーマーク
-    dollar = '$'
-
-    # ダラーマークの削除
-    line = line.replace(dollar, '')
 
     if dormitory in line:
         return dormitory_tag + line[index + 1:]
