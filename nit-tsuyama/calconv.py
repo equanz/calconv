@@ -358,6 +358,7 @@ def main():
                         csv_write.start = digit_conv(month) + '/'
 
                     # 期間予定かの検出
+                    date_end = [] # date_end初期化
                     span = span_search(line)
                     csv_write.start = csv_write.start + date_start_search(line) + '/'
                     # 一日予定
@@ -411,7 +412,7 @@ def main():
                         csv_write.start = csv_write.start + str(year)
                     decem = 12
                     # endは12月予定かつ月を跨いでいるまたは,1~3月なら次の年を設定
-                    if month == decem and span == -2 and date_end[0] or month == decem and date_end[0] or month < 4:
+                    if month == decem and span == -2 or month == decem and date_end[0] or month < 4:
                         csv_write.end = csv_write.end + str(year + 1)
                     else:
                         csv_write.end = csv_write.end + str(year)
