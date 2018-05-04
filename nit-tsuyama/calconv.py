@@ -314,7 +314,7 @@ def main():
         i = i + 1
 
     # 予定表部分終了部分(テキストそのままのため、何か終了検出方法を考えるべき)
-    month_end = '<div class="space">'
+    SCHEDULE_END = '</div>'
     # 4月の予定が読み込み開始されたかのフラグ
     month_start_flag = False
     # 予定がコメントアウト中の行にあるかのフラグ
@@ -341,7 +341,7 @@ def main():
 
             if month_start_flag:
                 # 予定表部分が終了した場合,breakする
-                if month_end in line:
+                if SCHEDULE_END in line:
                     break
                 # コメントアウト行終了時にフラグを下ろす
                 elif month_searching == -1:
