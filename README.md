@@ -1,6 +1,6 @@
 # Calendar Converter
 
-[![Build Status](https://travis-ci.org/rikyuusima/calconv.svg?branch=master)](https://travis-ci.org/rikyuusima/calconv)
+[![Build Status](https://travis-ci.org/equanz/calconv.svg?branch=master)](https://travis-ci.org/equanz/calconv)
 
 ## Summary
 webサイト作成の見づらいカレンダーを.csv等のGoogleカレンダーなどで読み込める形式に変換します。  
@@ -37,7 +37,7 @@ $ python3 calconv.py
 3.各カレンダーの形式への変換は，schedule.csvの変換(Google Calendar等)で対応してください。
 
 ## Author
-* [rikyuusima](https://github.com/rikyuusima)
+* [equanz](https://github.com/equanz)
   - nit-tsuyama/
   - nit-tsuyama-old/
 
