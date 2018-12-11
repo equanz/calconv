@@ -21,9 +21,13 @@ jobs:
             if [ ${CIRCLE_BRANCH} == "add_push_flow" ]; then
               git config --global user.email ${GIT_EMAIL}
               git config --global user.name ${GIT_NAME}
-              git add calendar/
-              git commit -m "docs: update calendar [ci skip]"
-              git push origin ${CIRCLE_BRANCH}
+              if [ -n "$(git status -s)" ]; then
+                git add calendar/
+                git commit -m "docs: update calendar [ci skip]"
+                git push origin ${CIRCLE_BRANCH}
+              else
+                echo "Changes are Pushed!"
+              fi
             else
               echo "Pass!"
             fi
@@ -33,7 +37,7 @@ workflows:
   cron_workflow:
     triggers:
       - schedule:
-          cron: "2 * * * *"
+          cron: "13 * * * *"
           filters:
             branches:
               only:
