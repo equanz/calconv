@@ -19,7 +19,7 @@ WORKDIR $HOME/calconv
 USER root
 # install dependency
 RUN pip install -r requirements.txt
-# copy source fiel
+# copy source file
 COPY . $HOME/calconv
 RUN chown -R app $HOME/*
 USER app
