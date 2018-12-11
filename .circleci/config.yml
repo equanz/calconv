@@ -18,9 +18,16 @@ jobs:
       - run:
           name: Push Calendar to Repository
           command: |
+            # if [ ${CIRCLE_BRANCH} == "master" ]; then
+            #   git config --global user.email ${GIT_EMAIL}
+            #   git config --global user.name ${GIT_NAME}
+            #   git add calendar/
+            #   git commit -m "docs: update calendar from CircleCI"
+            #   git push ${CIRCLE_REPOSITORY_URL} ${CIRCLE_BRANCH}
+            # fi
             git config --global user.email ${GIT_EMAIL}
             git config --global user.name ${GIT_NAME}
             git add calendar/
             git commit -m "docs: update calendar from CircleCI"
-            git push ${CI_REMOTE_REPOSITORY} ${CI_RELEASE_BRANCH}
+            git push ${CIRCLE_REPOSITORY_URL} ${CIRCLE_BRANCH}
 
