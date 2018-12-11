@@ -2,12 +2,14 @@
 # coding: utf-8
 
 import sys
+import os
 import calendar
 import requests
 import zenhan
 import argparse
 from icalendar import Calendar, Event, vDate
 import datetime
+import tempfile
 
 class CSV_Struct:
     """.csvに書き込む際の構造体."""
@@ -222,96 +224,49 @@ def replace_week(line):
         line = line.replace(day, dollar)
     return line
 
-def yesno():
-    """yes/no入力の判定を行う."""
-    s = input()
-    if s in ("y", "yes", "1", "true", "t"):
-        return True
-    elif s in ("n", "no", "0", "false", "f"):
-        return False
-    else:
-        raise ValueError("\tA y or n response is required\n\t\t" + s + " is not defined")
-
 def main():
     # 津山工業高等専門学校 行事予定 URL(2016/08/17現在)
     # まあ毎年URL変わるようだったら入力制にするかも
     URL = "http://www.tsuyama-ct.ac.jp/gyoujiVer4/gyouji.html"
     # カレンダーで読み込み可能にする為の.csv用ヘッダ
     CSV_HEAD = 'Subject,Start Date,End Date,All Day Event\n'
+    # ファイルタイプ
+    FILE_TYPE = ["csv", "ics"]
 
-    print("4月~3月までの一年間の行事予定を出力します")
-    print("URL:" + URL)
-    print("予定表に対応する西暦を年度で入力してください")
+    # argparseの設定
+    parser = argparse.ArgumentParser(description="4月~3月までの一年間の行事予定を出力します" + URL)
+    parser.add_argument("year", type=int,
+                        help="予定表に対応する年度の西暦")
+    parser.add_argument("type", choices=FILE_TYPE,
+                        help="予定表の出力形式")
 
-    # コマンドライン引数の個数を取得
-    argc = len(sys.argv)
-
-    # ヘルプオプション検出用
-    HELP_OPTION = ['-h', '--help']
-    # 西暦入力オプション検出用
-    YEAR_OPTION = ['-y', '--year']
-    # 予定切り分けオプション(ex.oo開始, oo終了)検出用
-    LIMIT_OPTION = ['-l', '--limit']
-
-    # 西暦の入力
-    if argc == 1:
-        year = input()
-        if year.isdigit():
-            year = int(year)
-        else:
-            raise ValueError("\tA Number response is required\n\t\t" + year + " is not defined")
-    else:
-        year = sys.argv[1]
-        if year.isdigit():
-            year = int(year)
-            print(year)
-        else:
-            raise ValueError("\tA Number response is required\n\t\t" + year + " is not defined")
-
-    if year <= 2000 or year >= 2027:
-        print("注意:このソフトの制作年から大きく異なるようです\n本当にこの西暦でよろしいですか\ny/n")
-        if yesno():
-            pass
-        else:
-            sys.exit()
+    # コマンドライン引数の値を取得
+    args = parser.parse_args()
 
     # Requests オブジェクト
     r = requests.get(URL)
-
-    # ステータスコードによる例外処理
-    if r.status_code != 200:
+    if r.status_code != 200: # ステータスコードによる例外処理
         raise ConnectionError("\tStatus Code is not equal 200.\n\tStatus Code: " + r.status_code)
-
-    # Encodingをutf-8に変更
     if r.encoding == 'ISO-8859-1':
+        # Encodingをutf-8に変更
         r.encoding = 'utf-8'
 
-    # ローカルに書き込み
-    f = open('./gyouji.html', 'w')
-    f.write(r.text)
-    r = None
-    f.close()
+    # 行ごとに分割
+    lines = r.text.split("\n")
+    del r
 
-    f = open('./gyouji.html', 'r')
-    # ファイルから一行ごとリストに読み出し
-    lines = f.readlines()
-    f.close()
-
-    f = open('./schedule.csv', 'w')
+    csv_f = tempfile.TemporaryFile("r+")
     # .csvにヘッダを書き込む
-    f.write(CSV_HEAD)
-    f.close()
+    csv_f.write(CSV_HEAD)
 
     # iCalヘッダ生成
     cal = Calendar()
-    cal.add('proid', '津山高専行事予定' + str(year) + '年度版(calconv)')
+    cal.add('proid', '津山高専行事予定' + str(args.year) + '年度版(calconv)')
     cal.add('version', '2.0')
 
     # 後ろの改行文字を取り除く
-    i = 0
-    for line in lines:
+    for i, line in enumerate(lines):
         lines[i] = line.rstrip()
-        i = i + 1
 
     # 予定表部分終了部分(テキストそのままのため、何か終了検出方法を考えるべき)
     SCHEDULE_END = '</div>'
@@ -331,7 +286,7 @@ def main():
         # remove_garbage()のガバガバ操作の影響でソースが気持ち悪い
         # 変なHTMLソースに対応するため
         if line != "　":
-            print(line)
+            # print(line)
             month_searching = month_search(line)
             # 月の行以外はmonthを変えない
             if month_search(line) >= 1:
@@ -364,7 +319,7 @@ def main():
                     # 一日予定
                     if span == -1:
                         # 月末の場合は次の月の始めを設定
-                        date_end = date_end_next(year, month, int(date_start_search(line)))
+                        date_end = date_end_next(args.year, month, int(date_start_search(line)))
                         if date_end[0]:
                             if month == 12:
                                 jan = '01'
@@ -377,7 +332,7 @@ def main():
                         csv_write.end = csv_write.end + date_end[1] + '/'
                     # 期間予定
                     elif span == 0:
-                        date_end = date_end_next(year, month, int(date_end_search(line)))
+                        date_end = date_end_next(args.year, month, int(date_end_search(line)))
                         if date_end[0]:
                             if month == 12:
                                 jan = '01'
@@ -391,7 +346,7 @@ def main():
                     # 月と書かれた期間予定
                     elif span == -2:
                         mde = month_date_end_search(line)
-                        date_end = date_end_next(year, int(mde[0]), int(mde[1]))
+                        date_end = date_end_next(args.year, int(mde[0]), int(mde[1]))
                         if date_end[0]:
                             if month == 12:
                                 jan = '01'
@@ -407,21 +362,21 @@ def main():
                     first = '01'
                     # startは1~3月なら次の年を設定
                     if month < 4:
-                        csv_write.start = csv_write.start + str(year + 1)
+                        csv_write.start = csv_write.start + str(args.year + 1)
                     else:
-                        csv_write.start = csv_write.start + str(year)
+                        csv_write.start = csv_write.start + str(args.year)
                     decem = 12
                     # endは12月予定かつ月を跨いでいるまたは,1~3月なら次の年を設定
                     if month == decem and span == -2 or month == decem and date_end[0] or month < 4:
-                        csv_write.end = csv_write.end + str(year + 1)
+                        csv_write.end = csv_write.end + str(args.year + 1)
                     else:
-                        csv_write.end = csv_write.end + str(year)
+                        csv_write.end = csv_write.end + str(args.year)
                     csv_write.sub = sub_search(line)
 
                     # 各種表示
-                    print("start: " + csv_write.start)
-                    print("end: " + csv_write.end)
-                    print("sub: " + csv_write.sub)
+                    # print("start: " + csv_write.start)
+                    # print("end: " + csv_write.end)
+                    # print("sub: " + csv_write.sub)
 
                     # iCal形式の作成
                     event = Event()
@@ -432,33 +387,36 @@ def main():
                     event.add('dtend', vDate(dt))
 
                     # .csvに書き込む
-                    f = open('./schedule.csv', 'a')
-                    f.write(csv_write.sub + "," +
+                    csv_f.write(csv_write.sub + "," +
                             csv_write.start + "," +
                             csv_write.end + "," +
                             csv_write.ALL_DAY + "\n")
-                    f.close()
 
                     # cal(iCal)に書き込む
                     cal.add_component(event)
 
     # .icsに書き込む
-    f = open('./schedule.ics', 'w')
-    print(cal.to_ical().decode('utf-8'))
-    f.write(cal.to_ical().decode('utf-8'))
-    f.close()
+    ics_f = tempfile.TemporaryFile("r+")
+    # print(cal.to_ical().decode('utf-8'))
+    ics_f.write(cal.to_ical().decode('utf-8'))
 
-    # ダウンロードしたWebページの削除
-    f = open('./gyouji.html', 'w')
-    f.write('')
-    f.close()
+    return_str = ""
+    # 指定形式の文字列を返す
+    if args.type == FILE_TYPE[0]:
+        csv_f.seek(0)
+        return_str = csv_f.read()
+    elif args.type == FILE_TYPE[1]:
+        ics_f.seek(0)
+        return_str = ics_f.read()
 
-    print("\nSuccessful!")
+    # ファイルクローズ
+    csv_f.close()
+    ics_f.close()
+
+    return return_str
 
 # モジュール利用された場合のため
 if __name__ == '__main__':
-    main()
+    type_str = main()
+    print(type_str)
 
-# Issue: Webサイトソースが改行(CR, CRLF, LF)を用いず<br>として形式を保っている場合に対応できていない.
-#        期間制予定かの検出に～の２つ後にあるというスタイルに依存した判定を行っている.
-#        予定表部分終了部分がテキストそのまま.
