@@ -27,7 +27,8 @@ jobs:
             # fi
             git config --global user.email ${GIT_EMAIL}
             git config --global user.name ${GIT_NAME}
-            git pull origin ${CIRCLE_BRANCH}
+            git status
+            git pull origin ${CIRCLE_BRANCH}g
             git add calendar/
             git commit -m "docs: update calendar from CircleCI"
             git push origin ${CIRCLE_BRANCH}
