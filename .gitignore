@@ -3,3 +3,6 @@ gyouji.html
 schedule.csv
 schedule.ics
 
+# python
+__pycache__/
+
