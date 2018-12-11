@@ -27,7 +27,6 @@ jobs:
             else
               echo "Pass!"
             fi
-
 workflows:
   version: 2
   cron_workflow:
