@@ -18,16 +18,27 @@ jobs:
       - run:
           name: Push Calendar to Repository
           command: |
-            # if [ ${CIRCLE_BRANCH} == "master" ]; then
-            #   git config --global user.email ${GIT_EMAIL}
-            #   git config --global user.name ${GIT_NAME}
-            #   git add calendar/
-            #   git commit -m "docs: update calendar from CircleCI"
-            #   git push ${CIRCLE_REPOSITORY_URL} ${CIRCLE_BRANCH}
-            # fi
-            git config --global user.email ${GIT_EMAIL}
-            git config --global user.name ${GIT_NAME}
-            git add calendar/
-            git commit -m "docs: update calendar [ci skip]"
-            git push origin ${CIRCLE_BRANCH}
+            if [ ${CIRCLE_BRANCH} == "add_push_flow" ]; then
+              git config --global user.email ${GIT_EMAIL}
+              git config --global user.name ${GIT_NAME}
+              git add calendar/
+              git commit -m "docs: update calendar [ci skip]"
+              git push origin ${CIRCLE_BRANCH}
+            else
+              echo "Pass!"
+            fi
+
+workflows:
+  version: 2
+  cron_workflow:
+    triggers:
+      - schedule:
+          cron: "*/2 * * * *"
+          filters:
+            branches:
+              only:
+                - add_push_flow
+    # run build job
+    jobs:
+      - build
 
