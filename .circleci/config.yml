@@ -25,11 +25,11 @@ jobs:
             #   git commit -m "docs: update calendar from CircleCI"
             #   git push ${CIRCLE_REPOSITORY_URL} ${CIRCLE_BRANCH}
             # fi
-            git config --global user.email ${GIT_EMAIL}
-            git config --global user.name ${GIT_NAME}
-            git status
-            git pull origin ${CIRCLE_BRANCH}
-            git add calendar/
-            git commit -m "docs: update calendar from CircleCI"
-            git push origin ${CIRCLE_BRANCH}
+            if [ ${CIRCLE_USERNAME} != ${GIT_NAME} ]; then
+              git config --global user.email ${GIT_EMAIL}
+              git config --global user.name ${GIT_NAME}
+              git add calendar/
+              git commit -m "docs: update calendar from CircleCI"
+              git push origin ${CIRCLE_BRANCH}
+            fi
 
