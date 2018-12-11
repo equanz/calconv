@@ -12,6 +12,40 @@ jobs:
       - run:
           name: Generate nit-tsuyama Calendar
           command: |
-            python -m nit-tsuyama.calconv 2018 csv
-            python -m nit-tsuyama.calconv 2018 ics
+            python -m nit-tsuyama.calconv 2018 csv > ./calendar/nit-tsuyama/index.csv
+            python -m nit-tsuyama.calconv 2018 ics > ./calendar/nit-tsuyama/index.ics
 
+      - run:
+          name: Push Calendar to Repository
+          command: |
+            if [ ${CIRCLE_BRANCH} == "master" ]; then
+              git config --global user.email ${GIT_EMAIL}
+              git config --global user.name ${GIT_NAME}
+              if [ -n "$(git status -s)" ]; then
+                git add calendar/
+                git commit -m "docs: update calendar [ci skip]"
+                git push origin ${CIRCLE_BRANCH}
+              else
+                echo "Changes are Pushed!"
+              fi
+            else
+              echo "Pass!"
+            fi
+
+workflows:
+  version: 2
+  normal_workflow:
+    jobs:
+      - build
+
+  cron_workflow:
+    triggers:
+      - schedule:
+          cron: "03 03 01 * *"
+          filters:
+            branches:
+              only:
+                - master
+    # run build job
+    jobs:
+      - build
