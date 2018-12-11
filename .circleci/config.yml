@@ -18,7 +18,7 @@ jobs:
       - run:
           name: Push Calendar to Repository
           command: |
-            if [ ${CIRCLE_BRANCH} == "add_push_flow" ]; then
+            if [ ${CIRCLE_BRANCH} == "master" ]; then
               git config --global user.email ${GIT_EMAIL}
               git config --global user.name ${GIT_NAME}
               if [ -n "$(git status -s)" ]; then
@@ -41,11 +41,11 @@ workflows:
   cron_workflow:
     triggers:
       - schedule:
-          cron: "18 * * * *"
+          cron: "03 03 01 * *"
           filters:
             branches:
               only:
-                - add_push_flow
+                - master
     # run build job
     jobs:
       - build
