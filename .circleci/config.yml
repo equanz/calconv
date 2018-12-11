@@ -12,8 +12,8 @@ jobs:
       - run:
           name: Generate nit-tsuyama Calendar
           command: |
-            python -m nit-tsuyama.calconv 2018 csv > ./calendar/nit-tsuyama/index.csv
-            python -m nit-tsuyama.calconv 2018 ics > ./calendar/nit-tsuyama/index.ics
+            python -m nit-tsuyama.calconv 2018 csv > ./calendar/nit-tsuyama/csv/index.csv
+            python -m nit-tsuyama.calconv 2018 ics > ./calendar/nit-tsuyama/ical/index.ics
 
       - run:
           name: Push Calendar to Repository
