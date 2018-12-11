@@ -34,10 +34,14 @@ jobs:
 
 workflows:
   version: 2
+  normal_workflow:
+    jobs:
+      - build
+
   cron_workflow:
     triggers:
       - schedule:
-          cron: "13 * * * *"
+          cron: "18 * * * *"
           filters:
             branches:
               only:
