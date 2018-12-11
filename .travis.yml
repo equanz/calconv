@@ -2,9 +2,8 @@ language:   python
 python:
     -   "3.4"
 install:
-    -   pip3 install -r ./nit-tsuyama/requirements.txt
+    -   pip3 install -r requirements.txt
 script:
-    -   cd ./nit-tsuyama-old/
-    -   python3 calconv.py 2018
     -   cd ../nit-tsuyama/
-    -   python3 calconv.py 2018
+    -   python3 calconv.py 2018 csv
+    -   python3 calconv.py 2018 ics
