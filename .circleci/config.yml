@@ -29,5 +29,5 @@ jobs:
             git config --global user.name ${GIT_NAME}
             git add calendar/
             git commit -m "docs: update calendar from CircleCI"
-            git push ${CIRCLE_REPOSITORY_URL} ${CIRCLE_BRANCH}
+            git push origin ${CIRCLE_BRANCH}
 
