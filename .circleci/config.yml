@@ -27,12 +27,13 @@ jobs:
             else
               echo "Pass!"
             fi
+
 workflows:
   version: 2
   cron_workflow:
     triggers:
       - schedule:
-          cron: "*/2 * * * *"
+          cron: "0 * * * *"
           filters:
             branches:
               only:
@@ -40,4 +41,3 @@ workflows:
     # run build job
     jobs:
       - build
-
