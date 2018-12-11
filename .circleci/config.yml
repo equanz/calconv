@@ -33,7 +33,7 @@ workflows:
   cron_workflow:
     triggers:
       - schedule:
-          cron: "0 * * * *"
+          cron: "2 * * * *"
           filters:
             branches:
               only:
