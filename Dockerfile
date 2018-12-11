@@ -1,5 +1,7 @@
 FROM python:3.7-alpine
 
+RUN apk update && apk add git
+
 # create user(app)
 RUN adduser -h /home/app -S app
 
