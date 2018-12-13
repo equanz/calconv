@@ -12,6 +12,11 @@ jobs:
           command: |
             python -m nit-tsuyama.calconv 2018 csv > ./calendar/nit-tsuyama/calendar.csv
             python -m nit-tsuyama.calconv 2018 ics > ./calendar/nit-tsuyama/calendar.ics
+      # share build result
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./calendar
 
   deploy:
     # Set Docker image
@@ -19,21 +24,20 @@ jobs:
       - image: equanz/calconv
     steps:
       - checkout
+      # attach build result
+      - attach_workspace:
+          at: .
       - run:
           name: Push Calendar to Repository
           command: |
-            if [ ${CIRCLE_BRANCH} == "master" ]; then
-              git config --global user.email ${GIT_EMAIL}
-              git config --global user.name ${GIT_NAME}
-              if [ -n "$(git status -s)" ]; then
-                git add calendar/
-                git commit -m "docs: update calendar [ci skip]"
-                git push origin ${CIRCLE_BRANCH}
-              else
-                echo "Changes are Pushed!"
-              fi
+            git config --global user.email ${GIT_EMAIL}
+            git config --global user.name ${GIT_NAME}
+            if [ -n "$(git status -s)" ]; then
+              git add calendar/
+              git commit -m "docs: update calendar [ci skip]"
+              git push origin ${CIRCLE_BRANCH}
             else
-              echo "Pass!"
+              echo "Changes are Pushed!"
             fi
 
 workflows:
@@ -44,6 +48,10 @@ workflows:
       - deploy:
           requires:
             - build
+          filters:
+            branches:
+              only:
+                - master
 
   cron_workflow:
     triggers:
