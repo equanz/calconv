@@ -12,13 +12,20 @@ jobs:
           command: |
             python -m nit-tsuyama.calconv 2018 csv > ./calendar/nit-tsuyama/calendar.csv
             python -m nit-tsuyama.calconv 2018 ics > ./calendar/nit-tsuyama/calendar.ics
+      # share build result
+      - persist_to_workspace:
+          root: .
+          paths:
+            - calendar
 
   deploy:
     # Set Docker image
     docker:
       - image: equanz/calconv
     steps:
-      - checkout
+      # attach build result
+      - attach_workspace:
+          at: .
       - run:
           name: Push Calendar to Repository
           command: |
