@@ -51,7 +51,7 @@ workflows:
           filters:
             branches:
               only:
-                - fix_workflow
+                - master
 
   cron_workflow:
     triggers:
