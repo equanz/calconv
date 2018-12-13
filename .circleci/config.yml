@@ -4,10 +4,8 @@ jobs:
     # Set Docker image
     docker:
       - image: equanz/calconv
-
     steps:
       - checkout
-
       # Install requirements
       - run:
           name: Generate nit-tsuyama Calendar
@@ -15,6 +13,12 @@ jobs:
             python -m nit-tsuyama.calconv 2018 csv > ./calendar/nit-tsuyama/calendar.csv
             python -m nit-tsuyama.calconv 2018 ics > ./calendar/nit-tsuyama/calendar.ics
 
+  deploy:
+    # Set Docker image
+    docker:
+      - image: equanz/calconv
+    steps:
+      - checkout
       - run:
           name: Push Calendar to Repository
           command: |
@@ -37,6 +41,9 @@ workflows:
   normal_workflow:
     jobs:
       - build
+      - deploy:
+          requires:
+            - build
 
   cron_workflow:
     triggers:
@@ -49,3 +56,6 @@ workflows:
     # run build job
     jobs:
       - build
+      - deploy:
+          requires:
+            - build
