@@ -22,18 +22,14 @@ jobs:
       - run:
           name: Push Calendar to Repository
           command: |
-            if [ ${CIRCLE_BRANCH} == "master" ]; then
-              git config --global user.email ${GIT_EMAIL}
-              git config --global user.name ${GIT_NAME}
-              if [ -n "$(git status -s)" ]; then
-                git add calendar/
-                git commit -m "docs: update calendar [ci skip]"
-                git push origin ${CIRCLE_BRANCH}
+            git config --global user.email ${GIT_EMAIL}
+            git config --global user.name ${GIT_NAME}
+            if [ -n "$(git status -s)" ]; then
+              git add calendar/
+              git commit -m "docs: update calendar [ci skip]"
+              git push origin ${CIRCLE_BRANCH}
               else
-                echo "Changes are Pushed!"
-              fi
-            else
-              echo "Pass!"
+              echo "Changes are Pushed!"
             fi
 
 workflows:
@@ -44,6 +40,10 @@ workflows:
       - deploy:
           requires:
             - build
+          filters:
+            branches:
+              only:
+                - fix_workflow
 
   cron_workflow:
     triggers:
