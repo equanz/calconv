@@ -16,13 +16,14 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-            - calendar
+            - ./calendar
 
   deploy:
     # Set Docker image
     docker:
       - image: equanz/calconv
     steps:
+      - checkout
       # attach build result
       - attach_workspace:
           at: .
@@ -35,7 +36,7 @@ jobs:
               git add calendar/
               git commit -m "docs: update calendar [ci skip]"
               git push origin ${CIRCLE_BRANCH}
-              else
+            else
               echo "Changes are Pushed!"
             fi
 
